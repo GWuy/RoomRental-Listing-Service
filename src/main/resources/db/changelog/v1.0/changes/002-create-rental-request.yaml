@@ -1,0 +1,107 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-rental-request
+      author: codex
+      changes:
+        - createTable:
+            tableName: rental_request
+            schemaName: listing-booking-service
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_rental_request
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: listing_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: room_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: building_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: move_in_date
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: note
+                  type: TEXT
+              - column:
+                  name: reject_reason
+                  type: TEXT
+              - column:
+                  name: requested_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: rental_request
+            baseColumnNames: listing_id
+            constraintName: fk_rental_request_room_listing
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: room_listing
+            referencedColumnNames: id
+        - createIndex:
+            indexName: idx_rental_request_customer_id
+            schemaName: listing-booking-service
+            tableName: rental_request
+            columns:
+              - column:
+                  name: customer_id
+        - createIndex:
+            indexName: idx_rental_request_listing_id
+            schemaName: listing-booking-service
+            tableName: rental_request
+            columns:
+              - column:
+                  name: listing_id
+        - createIndex:
+            indexName: idx_rental_request_building_id
+            schemaName: listing-booking-service
+            tableName: rental_request
+            columns:
+              - column:
+                  name: building_id
+        - createIndex:
+            indexName: idx_rental_request_status
+            schemaName: listing-booking-service
+            tableName: rental_request
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_rental_request_requested_at
+            schemaName: listing-booking-service
+            tableName: rental_request
+            columns:
+              - column:
+                  name: requested_at
+        - sql:
+            sql: CREATE UNIQUE INDEX uq_rental_request_pending ON "listing-booking-service".rental_request(customer_id, listing_id) WHERE status = 'PENDING'

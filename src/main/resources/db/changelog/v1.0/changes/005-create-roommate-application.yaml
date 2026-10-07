@@ -1,0 +1,85 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-roommate-application
+      author: codex
+      changes:
+        - createTable:
+            tableName: roommate_application
+            schemaName: listing-booking-service
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_roommate_application
+                    nullable: false
+              - column:
+                  name: roommate_post_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: message
+                  type: TEXT
+              - column:
+                  name: status
+                  type: VARCHAR(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: roommate_application
+            baseColumnNames: roommate_post_id
+            constraintName: fk_roommate_application_roommate_post
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: roommate_post
+            referencedColumnNames: id
+        - addUniqueConstraint:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columnNames: roommate_post_id, customer_id
+            constraintName: uq_roommate_application_post_customer
+        - createIndex:
+            indexName: idx_roommate_application_roommate_post_id
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columns:
+              - column:
+                  name: roommate_post_id
+        - createIndex:
+            indexName: idx_roommate_application_customer_id
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columns:
+              - column:
+                  name: customer_id
+        - createIndex:
+            indexName: idx_roommate_application_status
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_roommate_application_created_at
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columns:
+              - column:
+                  name: created_at

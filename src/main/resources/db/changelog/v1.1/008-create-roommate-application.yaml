@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-roommate-application
+      author: codex
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                schemaName: listing-booking-service
+                tableName: roommate_application
+      changes:
+        - createTable:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints: { primaryKey: true, primaryKeyName: pk_roommate_application_v11, nullable: false }
+              - column:
+                  name: roommate_post_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: customer_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column: { name: message, type: TEXT }
+              - column:
+                  name: status
+                  type: VARCHAR(40)
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: roommate_application
+            baseColumnNames: roommate_post_id
+            constraintName: fk_roommate_application_roommate_post_v11
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: roommate_post
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addUniqueConstraint:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            columnNames: roommate_post_id, customer_id
+            constraintName: uq_roommate_application_post_customer_v11
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            indexName: idx_roommate_application_roommate_post_id_v11
+            columns: [{ name: roommate_post_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            indexName: idx_roommate_application_customer_id_v11
+            columns: [{ name: customer_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            indexName: idx_roommate_application_status_v11
+            columns: [{ name: status }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+            indexName: idx_roommate_application_created_at_v11
+            columns: [{ name: created_at }]
+  - changeSet:
+      id: v1.1-roommate-application-cascade-delete
+      author: codex
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists:
+            schemaName: listing-booking-service
+            tableName: roommate_application
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              BEGIN
+                IF EXISTS (
+                  SELECT 1 FROM pg_constraint
+                  WHERE conname = 'fk_roommate_application_roommate_post'
+                    AND conrelid = '"listing-booking-service".roommate_application'::regclass
+                ) THEN
+                  ALTER TABLE "listing-booking-service".roommate_application
+                    DROP CONSTRAINT fk_roommate_application_roommate_post;
+                END IF;
+
+                IF NOT EXISTS (
+                  SELECT 1 FROM pg_constraint
+                  WHERE conname = 'fk_roommate_application_roommate_post_v11'
+                    AND conrelid = '"listing-booking-service".roommate_application'::regclass
+                ) THEN
+                  ALTER TABLE "listing-booking-service".roommate_application
+                    ADD CONSTRAINT fk_roommate_application_roommate_post_v11
+                    FOREIGN KEY (roommate_post_id)
+                    REFERENCES "listing-booking-service".roommate_post(id)
+                    ON DELETE CASCADE;
+                END IF;
+              END
+              $$;

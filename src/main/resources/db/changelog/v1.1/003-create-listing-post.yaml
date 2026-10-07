@@ -1,0 +1,72 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-listing-post
+      author: codex
+      changes:
+        - createTable:
+            schemaName: listing-booking-service
+            tableName: listing_post
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints: { primaryKey: true, primaryKeyName: pk_listing_post, nullable: false }
+              - column:
+                  name: room_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints: { nullable: false }
+              - column: { name: description, type: TEXT }
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: listing_post
+            baseColumnNames: room_id
+            constraintName: fk_listing_post_room
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: room
+            referencedColumnNames: id
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: listing_post
+            indexName: idx_listing_post_room_id
+            columns: [{ name: room_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: listing_post
+            indexName: idx_listing_post_status
+            columns: [{ name: status }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: listing_post
+            indexName: idx_listing_post_created_at
+            columns: [{ name: created_at }]
+        - sql:
+            sql: CREATE UNIQUE INDEX uq_listing_post_active_per_room ON "listing-booking-service".listing_post(room_id) WHERE status = 'ACTIVE'
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              BEGIN
+                IF to_regclass('"listing-booking-service".room_listing') IS NOT NULL THEN
+                  INSERT INTO "listing-booking-service".listing_post (id, room_id, title, description, status, created_at, updated_at)
+                  SELECT id, room_id, title, description, status, created_at, updated_at
+                  FROM "listing-booking-service".room_listing
+                  ON CONFLICT (id) DO NOTHING;
+                END IF;
+              END
+              $$;

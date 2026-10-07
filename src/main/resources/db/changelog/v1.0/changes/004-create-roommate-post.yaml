@@ -1,0 +1,105 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-roommate-post
+      author: codex
+      changes:
+        - createTable:
+            tableName: roommate_post
+            schemaName: listing-booking-service
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_roommate_post
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: room_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: building_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: budget_share
+                  type: DECIMAL(15,0)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: ALTER TABLE "listing-booking-service".roommate_post ADD CONSTRAINT ck_roommate_post_budget_share_nonnegative CHECK (budget_share >= 0)
+        - createIndex:
+            indexName: idx_roommate_post_customer_id
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: customer_id
+        - createIndex:
+            indexName: idx_roommate_post_room_id
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: room_id
+        - createIndex:
+            indexName: idx_roommate_post_building_id
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: building_id
+        - createIndex:
+            indexName: idx_roommate_post_status
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_roommate_post_budget_share
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: budget_share
+        - createIndex:
+            indexName: idx_roommate_post_created_at
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: created_at

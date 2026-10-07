@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: listing-service
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/RoomRental?currentSchema=listing-booking-service
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+
+  jpa:
+    hibernate:
+      ddl-auto: none

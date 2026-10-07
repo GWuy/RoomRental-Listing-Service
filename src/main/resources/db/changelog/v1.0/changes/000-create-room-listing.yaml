@@ -1,0 +1,155 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-room-listing
+      author: codex
+      changes:
+        - createTable:
+            tableName: room_listing
+            schemaName: listing-booking-service
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_room_listing
+                    nullable: false
+              - column:
+                  name: room_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: building_id
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: building_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: address
+                  type: VARCHAR(500)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ward_id
+                  type: UUID
+              - column:
+                  name: district_id
+                  type: UUID
+              - column:
+                  name: room_type_id
+                  type: UUID
+              - column:
+                  name: room_type_name
+                  type: VARCHAR(100)
+              - column:
+                  name: room_number
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_capacity
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: price
+                  type: DECIMAL(15,0)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: latitude
+                  type: DECIMAL(10,8)
+              - column:
+                  name: longitude
+                  type: DECIMAL(11,8)
+              - column:
+                  name: room_status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - sql:
+            sql: ALTER TABLE "listing-booking-service".room_listing ADD CONSTRAINT ck_room_listing_price_nonnegative CHECK (price >= 0), ADD CONSTRAINT ck_room_listing_max_capacity_positive CHECK (max_capacity > 0), ADD CONSTRAINT ck_room_listing_latitude_range CHECK (latitude IS NULL OR latitude BETWEEN -90 AND 90), ADD CONSTRAINT ck_room_listing_longitude_range CHECK (longitude IS NULL OR longitude BETWEEN -180 AND 180)
+        - createIndex:
+            indexName: idx_room_listing_status
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: status
+        - createIndex:
+            indexName: idx_room_listing_building_id
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: building_id
+        - createIndex:
+            indexName: idx_room_listing_ward_id
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: ward_id
+        - createIndex:
+            indexName: idx_room_listing_district_id
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: district_id
+        - createIndex:
+            indexName: idx_room_listing_room_type_id
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: room_type_id
+        - createIndex:
+            indexName: idx_room_listing_price
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: price
+        - createIndex:
+            indexName: idx_room_listing_created_at
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: created_at
+        - createIndex:
+            indexName: idx_room_listing_room_id
+            schemaName: listing-booking-service
+            tableName: room_listing
+            columns:
+              - column:
+                  name: room_id

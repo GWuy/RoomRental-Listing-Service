@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-or-upgrade-rental-request
+      author: codex
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              BEGIN
+                IF to_regclass('"listing-booking-service".rental_request') IS NULL THEN
+                  CREATE TABLE "listing-booking-service".rental_request (
+                    id UUID PRIMARY KEY,
+                    customer_id UUID NOT NULL,
+                    listing_post_id UUID NOT NULL,
+                    room_id UUID NOT NULL,
+                    building_id UUID NOT NULL,
+                    status VARCHAR(30) NOT NULL,
+                    move_in_date BIGINT NOT NULL,
+                    note TEXT,
+                    reject_reason TEXT,
+                    requested_at BIGINT NOT NULL,
+                    updated_at BIGINT NOT NULL
+                  );
+                ELSIF NOT EXISTS (
+                  SELECT 1 FROM information_schema.columns
+                  WHERE table_schema = 'listing-booking-service' AND table_name = 'rental_request' AND column_name = 'listing_post_id'
+                ) THEN
+                  ALTER TABLE "listing-booking-service".rental_request ADD COLUMN listing_post_id UUID;
+                  UPDATE "listing-booking-service".rental_request rr SET listing_post_id = lp.id
+                  FROM "listing-booking-service".listing_post lp
+                  WHERE rr.listing_id = lp.id;
+                  IF EXISTS (SELECT 1 FROM "listing-booking-service".rental_request WHERE listing_post_id IS NULL) THEN
+                    RAISE EXCEPTION 'Cannot map all existing rental_request rows to listing_post; migration stopped without dropping data';
+                  END IF;
+                  ALTER TABLE "listing-booking-service".rental_request ALTER COLUMN listing_post_id SET NOT NULL;
+                END IF;
+              END
+              $$;
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: rental_request
+            baseColumnNames: listing_post_id
+            constraintName: fk_rental_request_listing_post
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: listing_post
+            referencedColumnNames: id
+            onDelete: RESTRICT
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: rental_request
+            indexName: idx_rental_request_customer_id_v11
+            columns: [{ name: customer_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: rental_request
+            indexName: idx_rental_request_listing_post_id
+            columns: [{ name: listing_post_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: rental_request
+            indexName: idx_rental_request_room_id_v11
+            columns: [{ name: room_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: rental_request
+            indexName: idx_rental_request_building_id_v11
+            columns: [{ name: building_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: rental_request
+            indexName: idx_rental_request_status_v11
+            columns: [{ name: status }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: rental_request
+            indexName: idx_rental_request_requested_at_v11
+            columns: [{ name: requested_at }]
+        - sql:
+            sql: CREATE UNIQUE INDEX uq_rental_request_pending_listing_post ON "listing-booking-service".rental_request(customer_id, listing_post_id) WHERE status = 'PENDING'

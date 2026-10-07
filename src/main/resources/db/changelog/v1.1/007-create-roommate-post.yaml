@@ -1,0 +1,87 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-roommate-post
+      author: codex
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                schemaName: listing-booking-service
+                tableName: roommate_post
+      changes:
+        - createTable:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints: { primaryKey: true, primaryKeyName: pk_roommate_post_v11, nullable: false }
+              - column:
+                  name: customer_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: room_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: building_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints: { nullable: false }
+              - column:
+                  name: description
+                  type: TEXT
+                  constraints: { nullable: false }
+              - column:
+                  name: budget_share
+                  type: DECIMAL(15,0)
+                  constraints: { nullable: false }
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+        - sql:
+            sql: ALTER TABLE "listing-booking-service".roommate_post ADD CONSTRAINT ck_roommate_post_budget_share_nonnegative_v11 CHECK (budget_share >= 0)
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            indexName: idx_roommate_post_customer_id_v11
+            columns: [{ name: customer_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            indexName: idx_roommate_post_room_id_v11
+            columns: [{ name: room_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            indexName: idx_roommate_post_building_id_v11
+            columns: [{ name: building_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            indexName: idx_roommate_post_status_v11
+            columns: [{ name: status }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            indexName: idx_roommate_post_budget_share_v11
+            columns: [{ name: budget_share }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: roommate_post
+            indexName: idx_roommate_post_created_at_v11
+            columns: [{ name: created_at }]

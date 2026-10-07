@@ -1,0 +1,97 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-room
+      author: codex
+      changes:
+        - createTable:
+            schemaName: listing-booking-service
+            tableName: room
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints: { primaryKey: true, primaryKeyName: pk_room, nullable: false }
+              - column:
+                  name: building_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: room_number
+                  type: VARCHAR(50)
+                  constraints: { nullable: false }
+              - column: { name: room_type_id, type: UUID }
+              - column: { name: room_type_name, type: VARCHAR(100) }
+              - column:
+                  name: max_capacity
+                  type: INTEGER
+                  constraints: { nullable: false }
+              - column:
+                  name: price
+                  type: DECIMAL(15,0)
+                  constraints: { nullable: false }
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: room
+            baseColumnNames: building_id
+            constraintName: fk_room_building
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: building
+            referencedColumnNames: id
+            onDelete: RESTRICT
+        - sql:
+            sql: ALTER TABLE "listing-booking-service".room ADD CONSTRAINT ck_room_max_capacity_positive CHECK (max_capacity > 0), ADD CONSTRAINT ck_room_price_nonnegative CHECK (price >= 0)
+        - addUniqueConstraint:
+            schemaName: listing-booking-service
+            tableName: room
+            columnNames: building_id, room_number
+            constraintName: uq_room_building_room_number
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: room
+            indexName: idx_room_building_id
+            columns: [{ name: building_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: room
+            indexName: idx_room_room_type_id
+            columns: [{ name: room_type_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: room
+            indexName: idx_room_status
+            columns: [{ name: status }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: room
+            indexName: idx_room_price
+            columns: [{ name: price }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: room
+            indexName: idx_room_created_at
+            columns: [{ name: created_at }]
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              BEGIN
+                IF to_regclass('"listing-booking-service".room_listing') IS NOT NULL THEN
+                  INSERT INTO "listing-booking-service".room (id, building_id, room_number, room_type_id, room_type_name, max_capacity, price, status, created_at, updated_at)
+                  SELECT DISTINCT ON (room_id) room_id, building_id, room_number, room_type_id, room_type_name, max_capacity, price, room_status, created_at, updated_at
+                  FROM "listing-booking-service".room_listing ORDER BY room_id, created_at
+                  ON CONFLICT (id) DO NOTHING;
+                END IF;
+              END
+              $$;

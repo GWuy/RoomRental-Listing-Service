@@ -1,0 +1,89 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-appointment
+      author: codex
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            - tableExists:
+                schemaName: listing-booking-service
+                tableName: appointment
+      changes:
+        - createTable:
+            schemaName: listing-booking-service
+            tableName: appointment
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints: { primaryKey: true, primaryKeyName: pk_appointment, nullable: false }
+              - column:
+                  name: rental_request_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: customer_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: staff_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: building_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: appointment_date
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: appointment
+            baseColumnNames: rental_request_id
+            constraintName: fk_appointment_rental_request_v11
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: rental_request
+            referencedColumnNames: id
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: appointment
+            indexName: idx_appointment_rental_request_id_v11
+            columns: [{ name: rental_request_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: appointment
+            indexName: idx_appointment_customer_id_v11
+            columns: [{ name: customer_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: appointment
+            indexName: idx_appointment_staff_id
+            columns: [{ name: staff_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: appointment
+            indexName: idx_appointment_building_id_v11
+            columns: [{ name: building_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: appointment
+            indexName: idx_appointment_status_v11
+            columns: [{ name: status }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: appointment
+            indexName: idx_appointment_appointment_date_v11
+            columns: [{ name: appointment_date }]

@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-listing-post-image
+      author: codex
+      changes:
+        - createTable:
+            schemaName: listing-booking-service
+            tableName: listing_post_image
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints: { primaryKey: true, primaryKeyName: pk_listing_post_image, nullable: false }
+              - column:
+                  name: listing_post_id
+                  type: UUID
+                  constraints: { nullable: false }
+              - column:
+                  name: object_key
+                  type: VARCHAR(500)
+                  constraints: { nullable: false }
+              - column: { name: image_url, type: VARCHAR(1000) }
+              - column:
+                  name: sort_order
+                  type: INTEGER
+                  defaultValueNumeric: 0
+                  constraints: { nullable: false }
+              - column:
+                  name: is_cover
+                  type: BOOLEAN
+                  constraints: { nullable: false }
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints: { nullable: false }
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing-booking-service
+            baseTableName: listing_post_image
+            baseColumnNames: listing_post_id
+            constraintName: fk_listing_post_image_listing_post
+            referencedTableSchemaName: listing-booking-service
+            referencedTableName: listing_post
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - sql:
+            sql: ALTER TABLE "listing-booking-service".listing_post_image ADD CONSTRAINT ck_listing_post_image_sort_order_nonnegative CHECK (sort_order >= 0)
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: listing_post_image
+            indexName: idx_listing_post_image_listing_post_id
+            columns: [{ name: listing_post_id }]
+        - createIndex:
+            schemaName: listing-booking-service
+            tableName: listing_post_image
+            indexName: idx_listing_post_image_sort_order
+            columns: [{ name: sort_order }]
+        - sql:
+            sql: CREATE UNIQUE INDEX uq_listing_post_image_cover ON "listing-booking-service".listing_post_image(listing_post_id) WHERE is_cover = TRUE
