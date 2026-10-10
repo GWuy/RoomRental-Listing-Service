@@ -1,0 +1,15 @@
+.git
+.gradle
+.idea
+build
+*.iml
+*.ipr
+*.iws
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.env
+docker-compose.yaml
+Dockerfile
+HELP.md
