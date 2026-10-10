@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/v1.0/001-create-schema.yaml
+  - include:
+      file: db/changelog/v1.0/000-create-room-listing.yaml
+  - include:
+      file: db/changelog/v1.0/002-create-rental-request.yaml
+  - include:
+      file: db/changelog/v1.0/003-create-appointment.yaml
+  - include:
+      file: db/changelog/v1.0/004-create-roommate-post.yaml
+  - include:
+      file: db/changelog/v1.0/005-create-roommate-application.yaml
