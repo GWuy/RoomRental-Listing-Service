@@ -1,0 +1,44 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-create-province
+      author: codex
+      changes:
+        - createTable:
+            schemaName: listing_booking_service
+            tableName: province
+            columns:
+              - column:
+                  name: id
+                  type: UUID
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_province
+                    nullable: false
+              - column:
+                  name: code
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+                    unique: true
+                    uniqueConstraintName: uq_province_code
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: codename
+                  type: VARCHAR(255)
+              - column:
+                  name: division_type
+                  type: VARCHAR(100)
+              - column:
+                  name: created_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: BIGINT
+                  constraints:
+                    nullable: false

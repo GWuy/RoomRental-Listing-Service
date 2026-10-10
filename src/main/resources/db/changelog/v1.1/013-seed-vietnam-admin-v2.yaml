@@ -1,0 +1,89 @@
+# Source: https://provinces.open-api.vn/api/v2/
+# Snapshot checksums are recorded in db/data/vietnam-admin-v2-manifest.json.
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-seed-vietnam-admin-api-v2
+      author: codex
+      preConditions:
+        - onFail: HALT
+        - sqlCheck:
+            expectedResult: "0"
+            sql: SELECT COUNT(*) FROM listing_booking_service.province
+        - sqlCheck:
+            expectedResult: "0"
+            sql: SELECT COUNT(*) FROM listing_booking_service.ward
+      changes:
+        - loadData:
+            file: db/data/province-v2.csv
+            relativeToChangelogFile: false
+            schemaName: listing_booking_service
+            tableName: province
+            encoding: UTF-8
+            columns:
+              - column:
+                  name: id
+                  header: id
+                  type: uuid
+              - column:
+                  name: code
+                  header: code
+                  type: NUMERIC
+              - column:
+                  name: name
+                  header: name
+                  type: string
+              - column:
+                  name: codename
+                  header: codename
+                  type: string
+              - column:
+                  name: division_type
+                  header: division_type
+                  type: string
+              - column:
+                  name: created_at
+                  header: created_at
+                  type: NUMERIC
+              - column:
+                  name: updated_at
+                  header: updated_at
+                  type: NUMERIC
+        - loadData:
+            file: db/data/ward-v2.csv
+            relativeToChangelogFile: false
+            schemaName: listing_booking_service
+            tableName: ward
+            encoding: UTF-8
+            columns:
+              - column:
+                  name: id
+                  header: id
+                  type: uuid
+              - column:
+                  name: province_id
+                  header: province_id
+                  type: uuid
+              - column:
+                  name: code
+                  header: code
+                  type: NUMERIC
+              - column:
+                  name: name
+                  header: name
+                  type: string
+              - column:
+                  name: codename
+                  header: codename
+                  type: string
+              - column:
+                  name: division_type
+                  header: division_type
+                  type: string
+              - column:
+                  name: created_at
+                  header: created_at
+                  type: NUMERIC
+              - column:
+                  name: updated_at
+                  header: updated_at
+                  type: NUMERIC

@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-add-building-ward-foreign-key
+      author: codex
+      changes:
+        # Existing building.ward_id values may be legacy UUIDs from room_listing.
+        # NOT VALID preserves those rows while enforcing the relationship on new writes.
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing_booking_service
+            baseTableName: building
+            baseColumnNames: ward_id
+            constraintName: fk_building_ward
+            referencedTableSchemaName: listing_booking_service
+            referencedTableName: ward
+            referencedColumnNames: id
+            validate: false

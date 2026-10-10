@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-add-ward-province-foreign-key
+      author: codex
+      changes:
+        - addForeignKeyConstraint:
+            baseTableSchemaName: listing_booking_service
+            baseTableName: ward
+            baseColumnNames: province_id
+            constraintName: fk_ward_province
+            referencedTableSchemaName: listing_booking_service
+            referencedTableName: province
+            referencedColumnNames: id
+  - changeSet:
+      id: v1.1-add-ward-province-index
+      author: codex
+      changes:
+        - createIndex:
+            schemaName: listing_booking_service
+            tableName: ward
+            indexName: idx_ward_province_id
+            columns:
+              - column:
+                  name: province_id
