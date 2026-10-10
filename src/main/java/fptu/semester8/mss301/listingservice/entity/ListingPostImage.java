@@ -14,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "listing_post_image", schema = "listing-booking-service")
+@Table(name = "listing_post_image", schema = "listing_booking_service")
 public class ListingPostImage {
     @Id
     @Column(name = "id", nullable = false)

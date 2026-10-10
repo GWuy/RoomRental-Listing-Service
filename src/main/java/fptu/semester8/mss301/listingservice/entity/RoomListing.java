@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "room_listing", schema = "listing-booking-service")
+@Table(name = "room_listing", schema = "listing_booking_service")
 public class RoomListing {
     @Id
     @Column(name = "id", nullable = false)

@@ -3,14 +3,19 @@ spring:
     name: listing-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/RoomRental?currentSchema=listing-booking-service
-    username: ${DB_USER}
-    password: ${DB_PASSWORD}
+    url: jdbc:postgresql://postgres:5432/${DB_NAME:RoomRental}?currentSchema=${SCHEMA_NAME:listing_booking_service}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
   servlet:
     multipart:
       max-file-size: 50MB
       max-request-size: 50MB
+
+  liquibase:
+    enabled: true
+    default-schema: ${SCHEMA_NAME:listing_booking_service}
+    liquibase-schema: ${SCHEMA_NAME:listing_booking_service}
 
   jpa:
     hibernate:
