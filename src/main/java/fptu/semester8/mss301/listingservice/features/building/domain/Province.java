@@ -2,13 +2,17 @@ package fptu.semester8.mss301.listingservice.features.building.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -44,4 +48,7 @@ public class Province {
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private Long updatedAt;
+
+    @OneToMany(mappedBy = "province", fetch = FetchType.LAZY)
+    private List<Ward> wards = new ArrayList<>();
 }
