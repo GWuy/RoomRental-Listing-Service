@@ -1,5 +1,7 @@
 package fptu.semester8.mss301.listingservice.features.listing.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -10,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,15 +20,15 @@ import java.util.UUID;
 public class RoomListing {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @Column(name = "room_id", nullable = false)
-    private UUID roomId;
+    private Long roomId;
 
     @NotNull
     @Column(name = "building_id", nullable = false)
-    private UUID buildingId;
+    private Long buildingId;
 
     @Size(max = 255)
     @NotNull
@@ -39,14 +40,8 @@ public class RoomListing {
     @Column(name = "address", nullable = false, length = 500)
     private String address;
 
-    @Column(name = "ward_id")
-    private UUID wardId;
-
-    @Column(name = "district_id")
-    private UUID districtId;
-
     @Column(name = "room_type_id")
-    private UUID roomTypeId;
+    private Long roomTypeId;
 
     @Size(max = 100)
     @Column(name = "room_type_name", length = 100)
@@ -98,4 +93,11 @@ public class RoomListing {
     private Long updatedAt;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }

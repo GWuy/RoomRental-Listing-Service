@@ -25,3 +25,9 @@ databaseChangeLog:
       file: db/changelog/v1.1/012-add-building-ward-foreign-key.yaml
   - include:
       file: db/changelog/v1.1/013-seed-vietnam-admin-v2.yaml
+  - include:
+      file: db/changelog/v1.1/014-add-building-status.yaml
+  - include:
+      file: db/changelog/v1.1/015-convert-uuid-ids-to-snowflake.yaml
+  - include:
+      file: db/changelog/v1.1/016-remove-ward-province.yaml

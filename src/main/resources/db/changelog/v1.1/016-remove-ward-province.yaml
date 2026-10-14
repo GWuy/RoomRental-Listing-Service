@@ -1,0 +1,35 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-remove-ward-province-and-use-address
+      author: codex
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: listing_booking_service
+            baseTableName: building
+            constraintName: fk_building_ward
+        - dropForeignKeyConstraint:
+            baseTableSchemaName: listing_booking_service
+            baseTableName: ward
+            constraintName: fk_ward_province
+        - dropColumn:
+            schemaName: listing_booking_service
+            tableName: building
+            columnName: ward_id
+        - dropColumn:
+            schemaName: listing_booking_service
+            tableName: building
+            columnName: district_id
+        - dropColumn:
+            schemaName: listing_booking_service
+            tableName: room_listing
+            columnName: ward_id
+        - dropColumn:
+            schemaName: listing_booking_service
+            tableName: room_listing
+            columnName: district_id
+        - dropTable:
+            schemaName: listing_booking_service
+            tableName: ward
+        - dropTable:
+            schemaName: listing_booking_service
+            tableName: province

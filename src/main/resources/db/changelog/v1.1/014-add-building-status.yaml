@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-add-building-status
+      author: codex
+      changes:
+        - addColumn:
+            schemaName: listing_booking_service
+            tableName: building
+            columns:
+              - column:
+                  name: status
+                  type: VARCHAR(30)
+                  defaultValue: ACTIVE
+                  constraints:
+                    nullable: false
+        - createIndex:
+            schemaName: listing_booking_service
+            tableName: building
+            indexName: idx_building_status
+            columns:
+              - column:
+                  name: status

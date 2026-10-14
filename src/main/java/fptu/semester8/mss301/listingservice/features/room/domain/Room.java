@@ -1,5 +1,7 @@
 package fptu.semester8.mss301.listingservice.features.room.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import fptu.semester8.mss301.listingservice.features.building.domain.Building;
 
 import jakarta.persistence.*;
@@ -11,7 +13,6 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,7 +21,7 @@ import java.util.UUID;
 public class Room {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -34,7 +35,7 @@ public class Room {
     private String roomNumber;
 
     @Column(name = "room_type_id")
-    private UUID roomTypeId;
+    private Long roomTypeId;
 
     @Size(max = 100)
     @Column(name = "room_type_name", length = 100)
@@ -62,4 +63,11 @@ public class Room {
     private Long updatedAt;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }

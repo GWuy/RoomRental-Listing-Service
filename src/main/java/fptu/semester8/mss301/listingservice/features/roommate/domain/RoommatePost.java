@@ -1,5 +1,7 @@
 package fptu.semester8.mss301.listingservice.features.roommate.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -10,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -19,19 +20,19 @@ import java.util.UUID;
 public class RoommatePost {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @Column(name = "customer_id", nullable = false)
-    private UUID customerId;
+    private Long customerId;
 
     @NotNull
     @Column(name = "room_id", nullable = false)
-    private UUID roomId;
+    private Long roomId;
 
     @NotNull
     @Column(name = "building_id", nullable = false)
-    private UUID buildingId;
+    private Long buildingId;
 
     @Size(max = 255)
     @NotNull
@@ -60,4 +61,11 @@ public class RoommatePost {
     private Long updatedAt;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }

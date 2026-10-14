@@ -1,5 +1,7 @@
 package fptu.semester8.mss301.listingservice.features.rentalrequest.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import fptu.semester8.mss301.listingservice.features.listing.domain.ListingPost;
 import fptu.semester8.mss301.listingservice.features.listing.domain.RoomListing;
 
@@ -11,7 +13,6 @@ import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -20,11 +21,11 @@ import java.util.UUID;
 public class RentalRequest {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @Column(name = "customer_id", nullable = false)
-    private UUID customerId;
+    private Long customerId;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -33,11 +34,11 @@ public class RentalRequest {
 
     @NotNull
     @Column(name = "room_id", nullable = false)
-    private UUID roomId;
+    private Long roomId;
 
     @NotNull
     @Column(name = "building_id", nullable = false)
-    private UUID buildingId;
+    private Long buildingId;
 
     @Size(max = 30)
     @NotNull
@@ -69,4 +70,11 @@ public class RentalRequest {
     private ListingPost listingPost;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }

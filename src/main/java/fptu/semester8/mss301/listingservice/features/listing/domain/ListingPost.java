@@ -1,5 +1,7 @@
 package fptu.semester8.mss301.listingservice.features.listing.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import fptu.semester8.mss301.listingservice.features.room.domain.Room;
 
 import jakarta.persistence.*;
@@ -8,7 +10,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class ListingPost {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
@@ -46,4 +47,11 @@ public class ListingPost {
     private Long updatedAt;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }

@@ -1,11 +1,10 @@
 package fptu.semester8.mss301.listingservice.features.building.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -13,7 +12,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -22,7 +20,7 @@ import java.util.UUID;
 public class Building {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @Size(max = 255)
     @NotNull
@@ -34,15 +32,10 @@ public class Building {
     @Column(name = "address", nullable = false, length = 500)
     private String address;
 
-    @Column(name = "ward_id")
-    private UUID wardId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ward_id", insertable = false, updatable = false)
-    private Ward ward;
-
-    @Column(name = "district_id")
-    private UUID districtId;
+    @Size(max = 30)
+    @NotNull
+    @Column(name = "status", nullable = false, length = 30)
+    private String status;
 
     @Column(name = "latitude", precision = 10, scale = 8)
     private BigDecimal latitude;
@@ -59,4 +52,11 @@ public class Building {
     private Long updatedAt;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }

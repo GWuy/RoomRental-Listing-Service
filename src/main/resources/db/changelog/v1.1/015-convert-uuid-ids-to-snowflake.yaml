@@ -1,0 +1,102 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-convert-uuid-ids-to-snowflake
+      author: codex
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              DECLARE
+                id_column RECORD;
+                foreign_key RECORD;
+                base_elapsed BIGINT;
+              BEGIN
+                CREATE TEMPORARY TABLE uuid_snowflake_mapping (
+                  source_uuid UUID PRIMARY KEY,
+                  target_id BIGINT UNIQUE
+                ) ON COMMIT DROP;
+
+                FOR id_column IN
+                  SELECT table_schema, table_name, column_name
+                  FROM information_schema.columns
+                  WHERE table_schema = 'listing_booking_service'
+                    AND udt_name = 'uuid'
+                  ORDER BY table_name, ordinal_position
+                LOOP
+                  EXECUTE format(
+                    'INSERT INTO pg_temp.uuid_snowflake_mapping (source_uuid) SELECT DISTINCT %I FROM %I.%I WHERE %I IS NOT NULL ON CONFLICT DO NOTHING',
+                    id_column.column_name, id_column.table_schema, id_column.table_name, id_column.column_name
+                  );
+                END LOOP;
+
+                base_elapsed := (extract(epoch FROM clock_timestamp()) * 1000)::BIGINT - 1704067200000;
+                WITH numbered AS (
+                  SELECT source_uuid, row_number() OVER (ORDER BY source_uuid) - 1 AS sequence_number
+                  FROM pg_temp.uuid_snowflake_mapping
+                )
+                UPDATE pg_temp.uuid_snowflake_mapping AS mapping
+                SET target_id = ((base_elapsed + numbered.sequence_number / 4096) << 22)
+                                | (numbered.sequence_number % 4096)
+                FROM numbered
+                WHERE mapping.source_uuid = numbered.source_uuid;
+
+                CREATE OR REPLACE FUNCTION pg_temp.uuid_to_snowflake(input_uuid UUID)
+                RETURNS BIGINT
+                LANGUAGE SQL
+                IMMUTABLE
+                STRICT
+                AS $function$
+                  SELECT target_id
+                  FROM pg_temp.uuid_snowflake_mapping
+                  WHERE source_uuid = input_uuid
+                $function$;
+
+                CREATE TEMPORARY TABLE snowflake_foreign_keys ON COMMIT DROP AS
+                  SELECT namespace_row.nspname AS table_schema,
+                         table_row.relname AS table_name,
+                         constraint_row.conname AS constraint_name,
+                         pg_get_constraintdef(constraint_row.oid) AS definition,
+                         constraint_row.convalidated AS validated
+                  FROM pg_constraint AS constraint_row
+                  JOIN pg_class AS table_row ON table_row.oid = constraint_row.conrelid
+                  JOIN pg_namespace AS namespace_row ON namespace_row.oid = table_row.relnamespace
+                  WHERE constraint_row.contype = 'f'
+                    AND namespace_row.nspname = 'listing_booking_service';
+
+                FOR foreign_key IN
+                  SELECT table_row.relname AS table_name, constraint_row.conname AS constraint_name
+                  FROM pg_constraint AS constraint_row
+                  JOIN pg_class AS table_row ON table_row.oid = constraint_row.conrelid
+                  JOIN pg_namespace AS namespace_row ON namespace_row.oid = table_row.relnamespace
+                  WHERE constraint_row.contype = 'f'
+                    AND namespace_row.nspname = 'listing_booking_service'
+                LOOP
+                  EXECUTE format('ALTER TABLE listing_booking_service.%I DROP CONSTRAINT %I',
+                                 foreign_key.table_name, foreign_key.constraint_name);
+                END LOOP;
+
+                FOR id_column IN
+                  SELECT table_schema, table_name, column_name
+                  FROM information_schema.columns
+                  WHERE table_schema = 'listing_booking_service'
+                    AND udt_name = 'uuid'
+                  ORDER BY table_name, ordinal_position
+                LOOP
+                  EXECUTE format(
+                    'ALTER TABLE %I.%I ALTER COLUMN %I TYPE BIGINT USING pg_temp.uuid_to_snowflake(%I)',
+                    id_column.table_schema, id_column.table_name, id_column.column_name, id_column.column_name
+                  );
+                END LOOP;
+
+                FOR foreign_key IN SELECT * FROM pg_temp.snowflake_foreign_keys
+                LOOP
+                  EXECUTE format('ALTER TABLE %I.%I ADD CONSTRAINT %I %s%s',
+                                 foreign_key.table_schema,
+                                 foreign_key.table_name,
+                                 foreign_key.constraint_name,
+                                 regexp_replace(foreign_key.definition, '\s+NOT VALID$', '', 'i'),
+                                 CASE WHEN foreign_key.validated THEN '' ELSE ' NOT VALID' END);
+                END LOOP;
+              END
+              $$;

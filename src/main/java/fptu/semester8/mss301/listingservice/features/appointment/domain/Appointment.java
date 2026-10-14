@@ -1,5 +1,7 @@
 package fptu.semester8.mss301.listingservice.features.appointment.domain;
 
+import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
+
 import fptu.semester8.mss301.listingservice.features.rentalrequest.domain.RentalRequest;
 
 import jakarta.persistence.*;
@@ -8,7 +10,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -17,7 +18,7 @@ import java.util.UUID;
 public class Appointment {
     @Id
     @Column(name = "id", nullable = false)
-    private UUID id;
+    private Long id;
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -26,15 +27,15 @@ public class Appointment {
 
     @NotNull
     @Column(name = "customer_id", nullable = false)
-    private UUID customerId;
+    private Long customerId;
 
     @NotNull
     @Column(name = "building_id", nullable = false)
-    private UUID buildingId;
+    private Long buildingId;
 
     @NotNull
     @Column(name = "staff_id", nullable = false)
-    private UUID staffId;
+    private Long staffId;
 
     @NotNull
     @Column(name = "appointment_date", nullable = false)
@@ -54,4 +55,11 @@ public class Appointment {
     private Long updatedAt;
 
 
+
+    @jakarta.persistence.PrePersist
+    private void assignSnowflakeId() {
+        if (id == null) {
+            id = SnowflakeIdGenerator.nextId();
+        }
+    }
 }
