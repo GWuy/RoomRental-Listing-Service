@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-enforce-room-listing-one-per-room
+      author: codex
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              DECLARE duplicate_room_ids TEXT;
+              BEGIN
+                SELECT string_agg(room_id::TEXT || ' (' || duplicate_count || ')', ', ')
+                INTO duplicate_room_ids
+                FROM (
+                  SELECT room_id, COUNT(*) AS duplicate_count
+                  FROM listing_booking_service.room_listing
+                  GROUP BY room_id
+                  HAVING COUNT(*) > 1
+                ) duplicates;
+                IF duplicate_room_ids IS NOT NULL THEN
+                  RAISE EXCEPTION 'Cannot enforce one RoomListing per room; duplicate room_id values and counts: %', duplicate_room_ids;
+                END IF;
+              END
+              $$;
+        - sql:
+            sql: CREATE UNIQUE INDEX uq_room_listing_room_id ON listing_booking_service.room_listing(room_id)
+  - changeSet:
+      id: v1.1-enforce-listing-post-image-single-cover
+      author: codex
+      changes:
+        - sql:
+            splitStatements: false
+            sql: |
+              DO $$
+              DECLARE duplicate_post_ids TEXT;
+              BEGIN
+                SELECT string_agg(listing_post_id::TEXT || ' (' || duplicate_count || ')', ', ')
+                INTO duplicate_post_ids
+                FROM (
+                  SELECT listing_post_id, COUNT(*) AS duplicate_count
+                  FROM listing_booking_service.listing_post_image
+                  WHERE is_cover = TRUE
+                  GROUP BY listing_post_id
+                  HAVING COUNT(*) > 1
+                ) duplicates;
+                IF duplicate_post_ids IS NOT NULL THEN
+                  RAISE EXCEPTION 'Cannot enforce one cover image per ListingPost; duplicate listing_post_id values and counts: %', duplicate_post_ids;
+                END IF;
+              END
+              $$;
+        - sql:
+            sql: CREATE UNIQUE INDEX IF NOT EXISTS uq_listing_post_image_cover ON listing_booking_service.listing_post_image(listing_post_id) WHERE is_cover = TRUE

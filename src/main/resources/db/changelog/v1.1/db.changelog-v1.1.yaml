@@ -33,3 +33,5 @@ databaseChangeLog:
       file: db/changelog/v1.1/016-remove-ward-province.yaml
   - include:
       file: db/changelog/v1.1/017-add-building-deleted-at.yaml
+  - include:
+      file: db/changelog/v1.1/018-enforce-listing-domain-invariants.yaml
