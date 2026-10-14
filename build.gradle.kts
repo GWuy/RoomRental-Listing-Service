@@ -55,6 +55,9 @@ dependencies {
     implementation("org.mapstruct:mapstruct:1.6.3")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
     testAnnotationProcessor("org.mapstruct:mapstruct-processor:1.6.3")
+
+    // Source: https://mvnrepository.com/artifact/software.amazon.awssdk/s3
+    implementation("software.amazon.awssdk:s3:2.54.18")
 }
 
 dependencyManagement {

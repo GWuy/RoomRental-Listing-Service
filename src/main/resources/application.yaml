@@ -20,3 +20,18 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+storage:
+  provider: ${STORAGE_PROVIDER:s3}
+  public-base-url: ${R2_PUBLIC_BASE_URL:}
+  presigned-url-duration: ${STORAGE_PRESIGNED_URL_DURATION:15m}
+
+  image:
+    max-size: ${STORAGE_IMAGE_MAX_SIZE:5242880}
+
+  r2:
+    bucket: ${R2_BUCKET:}
+    endpoint: ${R2_ENDPOINT:}
+    region: ${R2_REGION:auto}
+    access-key: ${R2_ACCESS_KEY:}
+    secret-key: ${R2_SECRET_KEY:}
