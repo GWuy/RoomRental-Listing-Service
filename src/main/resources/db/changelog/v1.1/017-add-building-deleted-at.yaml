@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: v1.1-add-building-deleted-at
+      author: codex
+      changes:
+        - addColumn:
+            schemaName: listing_booking_service
+            tableName: building
+            columns:
+              - column:
+                  name: deleted_at
+                  type: BIGINT
+                  constraints:
+                    nullable: true

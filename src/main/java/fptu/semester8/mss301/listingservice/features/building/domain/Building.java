@@ -51,6 +51,9 @@ public class Building {
     @Column(name = "updated_at", nullable = false)
     private Long updatedAt;
 
+    @Column(name = "deleted_at")
+    private Long deletedAt;
+
 
 
     @jakarta.persistence.PrePersist
