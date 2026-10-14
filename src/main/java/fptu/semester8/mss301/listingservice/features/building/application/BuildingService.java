@@ -4,12 +4,15 @@ import fptu.semester8.mss301.listingservice.features.building.api.dto.BuildingDe
 import fptu.semester8.mss301.listingservice.features.building.api.dto.CreateBuildingRequest;
 import fptu.semester8.mss301.listingservice.features.building.domain.Building;
 import fptu.semester8.mss301.listingservice.features.building.repository.BuildingRepository;
+import fptu.semester8.mss301.listingservice.features.building.repository.BuildingSpecifications;
 import fptu.semester8.mss301.listingservice.common.id.SnowflakeIdGenerator;
 import fptu.semester8.mss301.listingservice.features.building.mapper.BuildingMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.util.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -50,10 +53,10 @@ public class BuildingService {
     public Page<BuildingDetailResponse> search(String name, String address, Pageable pageable) {
         name = normalize(name);
         address = normalize(address);
-        if (name == null && address == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Provide a name or address search term");
-        }
-        return buildingRepository.search(name, address, pageable).map(buildingMapper::toDetailResponse);
+        Pageable orderedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+            Sort.by(Sort.Order.desc("createdAt")));
+        return buildingRepository.findAll(BuildingSpecifications.search(name, address), orderedPageable)
+            .map(buildingMapper::toDetailResponse);
     }
 
     @Transactional

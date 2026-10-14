@@ -10,8 +10,11 @@ import org.mapstruct.factory.Mappers;
 import org.junit.jupiter.api.Test;
 
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -57,4 +60,15 @@ class BuildingServiceTest {
         assertEquals(building.getDeletedAt(), building.getUpdatedAt());
         verify(repository).saveAndFlush(building);
     }
+
+    @Test
+    void listPreservesRepositorySoftDeleteFilterAndCreatedAtDefaultOrder() {
+        when(repository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(any())).thenReturn(Page.empty());
+        service.list(PageRequest.of(0, 10));
+
+        var pageable = org.mockito.ArgumentCaptor.forClass(org.springframework.data.domain.Pageable.class);
+        verify(repository).findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable.capture());
+        assertFalse(pageable.getValue().getSort().isSorted());
+    }
+
 }

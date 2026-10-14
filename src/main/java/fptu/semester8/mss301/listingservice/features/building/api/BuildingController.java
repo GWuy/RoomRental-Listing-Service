@@ -2,6 +2,7 @@ package fptu.semester8.mss301.listingservice.features.building.api;
 
 import fptu.exe202.signify.apiresponse.response.ApiResponse;
 import fptu.semester8.mss301.listingservice.features.building.api.dto.BuildingDetailResponse;
+import fptu.semester8.mss301.listingservice.features.building.api.dto.BuildingPageableRequest;
 import fptu.semester8.mss301.listingservice.features.building.api.dto.CreateBuildingRequest;
 import fptu.semester8.mss301.listingservice.features.building.api.dto.CreateBuildingWithRoomsRequest;
 import fptu.semester8.mss301.listingservice.features.building.api.dto.BuildingWithRoomsResponse;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
@@ -40,17 +40,23 @@ public class BuildingController {
     }
 
     @GetMapping
-    public ApiResponse<Page<BuildingDetailResponse>> list(Pageable pageable) {
-        return ApiResponse.success(buildingService.list(pageable));
+    public ApiResponse<Page<BuildingDetailResponse>> list(
+        @RequestParam(required = false, defaultValue = "0") Integer page,
+        @RequestParam(required = false, defaultValue = "10") Integer size
+    ) {
+        var pagination = new BuildingPageableRequest(page, size);
+        return ApiResponse.success(buildingService.list(pagination.toPageable()));
     }
 
     @GetMapping("/search")
     public ApiResponse<Page<BuildingDetailResponse>> search(
         @RequestParam(required = false) String name,
         @RequestParam(required = false) String address,
-        Pageable pageable
+        @RequestParam(required = false, defaultValue = "0") Integer page,
+        @RequestParam(required = false, defaultValue = "10") Integer size
     ) {
-        return ApiResponse.success(buildingService.search(name, address, pageable));
+        var pagination = new BuildingPageableRequest(page, size);
+        return ApiResponse.success(buildingService.search(name, address, pagination.toPageable()));
     }
 
     @DeleteMapping("/{id}")
